@@ -1,0 +1,133 @@
+<div class="content-page">
+    <div class="content">
+
+        <!-- Start Content-->
+        <div class="container-fluid">
+
+            <!-- end page title -->
+
+            <div class="row mb-5">
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card widget-flat">
+                        <div class="card-body p-0">
+                            <div class="p-3 pb-0">
+                                <div class="float-right">
+                                    <i class="mdi mdi-cart text-primary widget-icon"></i>
+                                </div>
+                                <h5 class="text-muted font-weight-normal mt-0">Tổng số khách hàng:</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 class="mt-2" id="request_number1" th:text="${partner}"></h3>
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                </div>
+
+                            </div>
+                            <div id="sparkline1"></div>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card widget-flat">
+                        <div class="card-body p-0">
+                            <div class="p-3 pb-0">
+                                <div class="float-right">
+                                    <i class="mdi mdi-currency-usd text-danger widget-icon"></i>
+                                </div>
+                                <h5 class="text-muted font-weight-normal mt-0">Tổng số danh mục dịch vụ:</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 class="mt-2" id="request_number" th:text="${category}">
+                                    </h3>
+                                    <i class="fa fa-rocket" style="font-size: 40px" aria-hidden="true"></i>
+                                </div>
+
+                            </div>
+                            <div id="sparkline2"></div>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+            </div>
+            <div class="row mb-5">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <canvas id="myChart" width="100%" class="mt-4"></canvas>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        
+            <!-- end row -->
+
+        </div> <!-- container-fluid -->
+
+    </div> <!-- content -->
+</div>
+<script>
+    $(document).ready(function () {
+        var xValues = [];
+        var yValues = [];
+        fetch(`${localdomain}/partners/thongKe?idPart=`,{
+            method: "GET",
+            headers : {
+                "Content-Type" : "application/json"
+            }
+        }).then(response => {
+            if (!response.ok) {
+                if (response.status === 500) {
+                    customLogout();
+                }
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data =>{
+            console.log(data)
+            if (data.success){
+
+                data.data.map(value =>{
+                    xValues.push(value.partnerCode);
+                    yValues.push(value.totalMoney);
+                    new Chart("myChart", {
+                        type: "bar",
+                        data: {
+                            labels: xValues,
+                            datasets: [{
+                                backgroundColor: "blue",
+                                data: yValues
+                            }]
+                        },
+                        options: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: "Biểu đồ theo năm 2024"
+                            },
+                            font: {
+                                style: 'italic' // Make the title italic
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        font: {
+                                            style: 'italic' // Make x-axis labels italic
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+            }
+        }).catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        })
+
+
+
+    })
+</script>
+<script th:src="@{/web/pages/solieu.js}"></script>
+<script th:src="@{/web/libs/chart-js/Chart.bundle.min.js}"></script>
+<script th:src="@{/web/libs/jquery-sparkline/jquery.sparkline.min.js}"></script>
